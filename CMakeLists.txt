@@ -25,10 +25,9 @@ set(SOURCE_FILES
         ./example.h
 
         ./exutils.c
-
-        ./rpc.c
         )
 
-add_executable(logtransfer ${SOURCE_FILES})
+add_executable(rpc ${SOURCE_FILES} ./rpc.c)
+add_executable(logtransfer ${SOURCE_FILES} ./logtransfer.c)
 
 add_compile_options()

@@ -127,9 +127,7 @@ SYSLIBS	= `sh sybopts.sh syslibs`
 # are not supported on all platforms. 'make all' also does not build the 
 # unicode examples. These are built by 'make uni'.
 #
-all: arraybind compute csr_disp csr_disp_implicit csr_disp_scrollcurs csr_disp_scrollcurs2 csr_disp_scrollcurs3 rpc getsend i18n usedir id_update exasync exconfig firstapp dynamic lobdynamic lobrpc locator wide_curupd wide_compute wide_dynamic wide_rpc blktxt twophase uctext batch_lang batch_dynamic
-
-uni: uni_firstapp uni_csr_disp uni_compute uni_rpc uni_blktxt
+all: rpc logtransfer
 
 exutils.o: exutils.c example.h exutils.h
 	@ printf "$(COMPILE) -c exutils.c -o exutils.o\n\n";
@@ -139,202 +137,17 @@ exutils_uctext.o: exutils.c example.h exutils.h
 	@ printf "$(COMPILE) -c exutils.c -DPARTIAL_TEXT -o exutils_uctext.o\n\n";
 	@ $(COMPILE) -c exutils.c -DPARTIAL_TEXT -o exutils_uctext.o
 
-exutils2.o: exutils2.c example.h exutils.h
-	@ printf "$(COMPILE) -c exutils2.c -o exutils2.o\n\n";
-	@ $(COMPILE) -c exutils2.c -o exutils2.o
-
-ex_alib.o: ex_alib.c example.h exasync.h
-	@ printf "$(COMPILE) -c ex_alib.c -o ex_alib.o\n\n";
-	@ $(COMPILE) -c ex_alib.c -o ex_alib.o
-
-wide_util.o: wide_util.c 
-	@ printf "$(COMPILE) -c wide_util.c -o wide_util.o\n\n";
-	@ $(COMPILE) -c wide_util.c -o wide_util.o
-
-thrdfunc.o: thrdfunc.c thrdfunc.h
-	@ sh sybopts.sh verify_threaded;
-	@ printf "$(COMPILE) -c thrdfunc.c -o thrdfunc.o\n\n";
-	@ $(COMPILE) -c thrdfunc.c -o thrdfunc.o
-
-thrdutil.o: thrdutil.c thrdutil.h
-	@ sh sybopts.sh verify_threaded;
-	@ printf "$(COMPILE) -c thrdutil.c -o thrdutil.o\n\n";
-	@ $(COMPILE) -c thrdutil.c -o thrdutil.o
-
-arraybind: arraybind.c exutils.o
-	@ printf "$(COMPILE) arraybind.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) arraybind.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-compute: compute.c exutils.o
-	@ printf "$(COMPILE) compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-dynamic: dynamic.c wide_util.o exutils.o
-	@ printf "$(COMPILE) dynamic.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) dynamic.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
 rpc: rpc.c exutils.o
 	@ printf "$(COMPILE) rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
 	@ $(COMPILE) rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@
 
-lobrpc: lobrpc.c exutils.o
-	@ printf "$(COMPILE) lobrpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
-	@ $(COMPILE) lobrpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@
-
-lobdynamic: lobdynamic.c exutils.o
-	@ printf "$(COMPILE) lobdynamic.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) lobdynamic.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-locator: locator.c
-	@ printf "$(COMPILE) locator.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) locator.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-csr_disp: csr_disp.c exutils.o
-	@ printf "$(COMPILE) csr_disp.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) csr_disp.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-csr_disp_implicit: csr_disp_implicit.c exutils.o
-	@ printf "$(COMPILE) csr_disp_implicit.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) csr_disp_implicit.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-csr_disp_scrollcurs: csr_disp_scrollcurs.c exutils.o exutils2.o
-	@ printf "$(COMPILE) csr_disp_scrollcurs.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) csr_disp_scrollcurs.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-csr_disp_scrollcurs2: csr_disp_scrollcurs2.c exutils.o exutils2.o
-	@ printf "$(COMPILE) csr_disp_scrollcurs2.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) csr_disp_scrollcurs2.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-csr_disp_scrollcurs3: csr_disp_scrollcurs3.c exutils.o exutils2.o
-	@ printf "$(COMPILE) csr_disp_scrollcurs3.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) csr_disp_scrollcurs3.c exutils.o exutils2.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-getsend: getsend.c exutils.o
-	@ printf "$(COMPILE) getsend.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) getsend.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-i18n: i18n.c exutils.o
-	@ printf "$(COMPILE) i18n.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) i18n.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-exasync: ex_amain.c exutils.o ex_alib.o
-	@ printf "$(COMPILE) ex_amain.c exutils.o ex_alib.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) ex_amain.c exutils.o ex_alib.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-blktxt: blktxt.c exutils.o
-	@ printf "$(COMPILE) blktxt.c exutils.o $(LIBPATH) $(BLKLIBS) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) blktxt.c exutils.o $(LIBPATH) $(BLKLIBS) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-usedir: usedir.c exutils.o
-	@ printf "$(COMPILE) usedir.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) usedir.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-id_update: id_update.c exutils.o
-	@ printf "$(COMPILE) id_update.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) id_update.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-#
-# Wide table examples
-#
-wide_curupd: wide_curupd.c exutils.o wide_util.o
-	@ printf "$(COMPILE) wide_curupd.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) wide_curupd.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-wide_compute: wide_compute.c exutils.o
-	@ printf "$(COMPILE) wide_compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) wide_compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-wide_dynamic: wide_dynamic.c wide_util.o exutils.o
-	@ printf "$(COMPILE) wide_dynamic.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) wide_dynamic.c exutils.o wide_util.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-wide_rpc: wide_rpc.c exutils.o
-	@ printf "$(COMPILE) wide_rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
-	@ $(COMPILE) wide_rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@
-
-#
-# Unichar16 examples
-#
-uni_firstapp: uni_firstapp.c
-	@ printf "$(COMPILE) uni_firstapp.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) uni_firstapp.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-uni_csr_disp: uni_csr_disp.c exutils.o
-	@ printf "$(COMPILE) uni_csr_disp.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) uni_csr_disp.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-uni_compute: uni_compute.c exutils.o
-	@ printf "$(COMPILE) uni_compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) uni_compute.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-uni_blktxt: uni_blktxt.c exutils.o
-	@ printf "$(COMPILE) uni_blktxt.c exutils.o $(LIBPATH) $(BLKLIBS) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) uni_blktxt.c exutils.o $(LIBPATH) $(BLKLIBS) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-uni_rpc: uni_rpc.c exutils.o
-	@ printf "$(COMPILE) uni_rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
-	@ $(COMPILE) uni_rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@
-
-#
-# multthrd requires the pthread or solaris thread interface. 
-# sybopts.sh verifies that SYBPLATFORM is set to a "nthread_" variant.
-#
-multthrd: multthrd.c thrdutil.o thrdfunc.o example.h
-	@ sh sybopts.sh verify_threaded;
-	@ printf "$(COMPILE) multthrd.c thrdutil.o thrdfunc.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) multthrd.c thrdutil.o thrdfunc.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-exconfig: exconfig.c exutils.o
-	@ printf "$(COMPILE) exconfig.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) exconfig.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-uctext: uctext.c exutils_uctext.o
-	@ printf "$(COMPILE) uctext.c exutils_uctext.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) uctext.c exutils_uctext.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-firstapp: firstapp.c
-	@ printf "$(COMPILE) firstapp.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) firstapp.c $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-batch_dynamic: batch_dynamic.c exutils.o
-	@ printf "$(COMPILE) batch_dynamic.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) batch_dynamic.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-batch_lang: batch_lang.c exutils.o
-	@ printf "$(COMPILE) batch_lang.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) batch_lang.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-#
-# Target for the Kerberos security example:
-#
-secct_krb: secct.c exutils.o
-	@ sh sybopts.sh verify_krb;
-	@ printf "$(COMPILE) secct.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) secct.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
-
-# 
-# Two Phase Commit example:
-#
-ctpr.o: ctpr.c ctxact.h
-	@ printf "$(COMPILE) -c ctpr.c -o ctpr.o\n\n";
-	@ $(COMPILE) -c ctpr.c -o ctpr.o
-
-ctxact.o: ctxact.c ctxact.h
-	@ printf "$(COMPILE) -c ctxact.c -o ctxact.o\n\n";
-	@ $(COMPILE) -c ctxact.c -o ctxact.o
-
-twophase: twophase.c ctpr.o ctxact.o example.h
-	@ printf "$(COMPILE) twophase.c ctpr.o ctxact.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@\n\n";
-	@ $(COMPILE) twophase.c ctpr.o ctxact.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS) -o $@
+logtransfer: logtransfer.c exutils.o
+	@ printf "$(COMPILE) logtransfer.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
+	@ $(COMPILE) logtransfer.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@
 
 #
 # Clean all binaries
 #
 clean: 
-	rm -f arraybind compute csr_disp csr_disp_implicit csr_disp_scrollcurs \
-	csr_disp_scrollcurs2 csr_disp_scrollcurs3 rpc getsend i18n usedir \
-	id_update exasync blktxt exconfig firstapp wide_compute wide_dynamic \
-	wide_curupd wide_rpc multthrd uni_firstapp uni_csr_disp uni_compute \
-	uni_blktxt uni_rpc secct_krb uctext twophase lobrpc lobdynamic locator \
-	dynamic batch_dynamic batch_lang *.o
+	rm -f rpc logtransfer *.o
 
