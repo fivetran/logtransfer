@@ -293,6 +293,29 @@ ex_display_column(CS_CONTEXT *context, CS_DATAFMT *colfmt, CS_VOID *data,
 	return CS_SUCCEED;
 }
 
+/*
+** ex_msg()
+**
+** Type of function:
+** 	example program utility api
+**
+** Purpose:
+** 	Reports a string message to EX_STANDARD_OUT.
+**
+** Returns:
+** 	nothing
+**
+** Side Effects:
+** 	none.
+*/
+
+CS_VOID CS_PUBLIC
+ex_msg(char *msg)
+{
+    fprintf(EX_STANDARD_OUT, "MESSAGE: %s\n", msg);
+    fflush(EX_STANDARD_OUT);
+}
+
 /*****************************************************************************
 ** 
 ** error functions 

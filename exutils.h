@@ -131,6 +131,9 @@ extern CS_RETCODE CS_PUBLIC ex_display_column(
 	CS_INT datalength,
 	CS_INT indicator
 	);
+extern CS_VOID CS_PUBLIC ex_msg(
+        char *msg
+);
 extern CS_VOID CS_PUBLIC ex_panic(
 	char *msg
 	);

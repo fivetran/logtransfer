@@ -43,10 +43,11 @@
 /*
 ** Define symbolic names, constants, and macros
 */
-#define	EX_MAXSTRINGLEN		255
+#define	EX_MAXSTRINGLEN		510
 #define	EX_BUFSIZE		1024
 #define	EX_CTLIB_VERSION	CS_CURRENT_VERSION
 #define	EX_BLK_VERSION		BLK_VERSION_160
+#define	EX_STANDARD_OUT		stdout
 #define	EX_ERROR_OUT		stderr
 #define	EX_BADVAL		(CS_INT)-1
 #define	EX_MAX_ARR		64
