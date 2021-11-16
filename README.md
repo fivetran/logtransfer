@@ -1,6 +1,10 @@
 # logtransfer
 In support of HVR-15723, this is a POC with ASE's `dbcc logtransfer` API.
 
+Customizing:
+In `example.h`, set `EX_USERNAME` and `EX_PASSWORD` appropriately. In
+`logtransfer.c`, set `Ex_dbname` to the name of the database to be scanned.
+(Setting `DSQUERY` below gets you to the right data server.)
 
 Building:
 ```commandline
