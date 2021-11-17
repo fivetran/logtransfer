@@ -44,7 +44,7 @@ CS_CHAR *Ex_password = EX_PASSWORD;
 */
 CS_STATIC CS_RETCODE InstallNulls(CS_CONTEXT *context);
 CS_STATIC CS_RETCODE DoLogtransfer(CS_CONNECTION *connection, CS_CHAR *operation, CS_CHAR *qualifier, CS_CHAR *parm);
-CS_STATIC CS_RETCODE DoDML(CS_CONNECTION *connection, CS_CHAR *select);
+CS_STATIC CS_RETCODE DoDML(CS_CONNECTION *connection, CS_CHAR *dml);
 
 /*
 ** main()
@@ -397,7 +397,7 @@ DoLogtransfer(CS_CONNECTION *connection, CS_CHAR *operation, CS_CHAR *qualifier,
 */
 
 CS_STATIC CS_RETCODE
-DoDML(CS_CONNECTION *connection, CS_CHAR *select)
+DoDML(CS_CONNECTION *connection, CS_CHAR *dml)
 {
     CS_RETCODE	retcode;
     CS_COMMAND	*cmd;
@@ -409,12 +409,12 @@ DoDML(CS_CONNECTION *connection, CS_CHAR *select)
     }
 
     ex_msg("Attempting command:");
-    ex_msg(select);
+    ex_msg(dml);
 
     /*
     ** Build the command for our `SELECT` execution.
     */
-    if ((retcode = ct_command(cmd, CS_LANG_CMD, select, CS_NULLTERM,
+    if ((retcode = ct_command(cmd, CS_LANG_CMD, dml, CS_NULLTERM,
                               CS_UNUSED)) != CS_SUCCEED)
     {
         ex_error("DoDML: ct_command() failed");
@@ -435,7 +435,7 @@ DoDML(CS_CONNECTION *connection, CS_CHAR *select)
         CS_CHAR     tmpbuf[EX_MAXSTRINGLEN];
 
         sprintf(tmpbuf, "DoDML: Failed with command=<%s>.",
-                select);
+                dml);
         ex_error(tmpbuf);
     }
 
