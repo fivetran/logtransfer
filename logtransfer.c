@@ -44,7 +44,7 @@ CS_CHAR *Ex_password = EX_PASSWORD;
 */
 CS_STATIC CS_RETCODE InstallNulls(CS_CONTEXT *context);
 CS_STATIC CS_RETCODE DoLogtransfer(CS_CONNECTION *connection, CS_CHAR *operation, CS_CHAR *qualifier, CS_CHAR *parm);
-CS_STATIC CS_RETCODE DoSelect(CS_CONNECTION *connection, CS_CHAR *select);
+CS_STATIC CS_RETCODE DoDML(CS_CONNECTION *connection, CS_CHAR *select);
 
 /*
 ** main()
@@ -154,6 +154,33 @@ main(int argc, char *argv[])
     }
 
     /*
+    ** Do a few updates.
+    */
+    if (retcode == CS_SUCCEED)
+    {
+        retcode = DoDML(connection, "insert into test_lob (id, story) "
+                                    "values(103, 'My hat is old. My teeth are gold.')");
+    }
+    if (retcode == CS_SUCCEED)
+    {
+        retcode = DoDML(connection, "update test_lob set story='I have a bird I like to hold.' "
+                                       "where id = 103");
+    }
+    if (retcode == CS_SUCCEED)
+    {
+        retcode = DoDML(connection, "delete from test_lob "
+                                        "where id = 103");
+    }
+
+    /*
+    ** Perform 1 continuation scan.
+    */
+    if (retcode == CS_SUCCEED)
+    {
+        retcode = DoLogtransfer(connection, "scan", "continue", "");
+    }
+
+    /*
     ** Release log transfer context
     */
     if (retcode == CS_SUCCEED)
@@ -170,15 +197,15 @@ main(int argc, char *argv[])
     ** be protected from buffer corruption in our use of `dbcc page()`. We should
     ** test and/or ask.)
     */
-    if (retcode == CS_SUCCEED)
-    {
-        retcode = DoSelect(connection, "select * from lobs.dbo.syslogs");
-    }
+    //if (retcode == CS_SUCCEED)
+    //{
+    //    retcode = DoDML(connection, "select * from lobs.dbo.syslogs");
+    //}
 
-    if (retcode == CS_SUCCEED)
-    {
-        retcode = DoSelect(connection, "select * from master.dbo.syslogsdetail");
-    }
+    //if (retcode == CS_SUCCEED)
+    //{
+    //    retcode = DoDML(connection, "select * from master.dbo.syslogsdetail");
+    //}
 
 	/*
 	** Deallocate the allocated structures, close the connection,
@@ -351,14 +378,14 @@ DoLogtransfer(CS_CONNECTION *connection, CS_CHAR *operation, CS_CHAR *qualifier,
 }
 
 /*
-** DoSelect()
+** DoDML()
 **
 ** Type of function:
 ** 	logtransfer program internal api
 **
 ** Purpose:
-**	This routine expects to receive a SELECT statement which it executes,
-** displaying the results.
+**	This routine expects to receive a SELECT/DML statement which it executes,
+**  displaying the results.
 **
 ** Parameters:
 ** 	connection	- Pointer to CS_CONNECTION structure.
@@ -370,14 +397,14 @@ DoLogtransfer(CS_CONNECTION *connection, CS_CHAR *operation, CS_CHAR *qualifier,
 */
 
 CS_STATIC CS_RETCODE
-DoSelect(CS_CONNECTION *connection, CS_CHAR *select)
+DoDML(CS_CONNECTION *connection, CS_CHAR *select)
 {
     CS_RETCODE	retcode;
     CS_COMMAND	*cmd;
 
     if ((retcode = ct_cmd_alloc(connection, &cmd)) != CS_SUCCEED)
     {
-        ex_error("DoSelect: ct_cmd_alloc() failed");
+        ex_error("DoDML: ct_cmd_alloc() failed");
         return retcode;
     }
 
@@ -390,7 +417,7 @@ DoSelect(CS_CONNECTION *connection, CS_CHAR *select)
     if ((retcode = ct_command(cmd, CS_LANG_CMD, select, CS_NULLTERM,
                               CS_UNUSED)) != CS_SUCCEED)
     {
-        ex_error("DoSelect: ct_command() failed");
+        ex_error("DoDML: ct_command() failed");
         return retcode;
     }
 
@@ -399,7 +426,7 @@ DoSelect(CS_CONNECTION *connection, CS_CHAR *select)
     */
     if (ct_send(cmd) != CS_SUCCEED)
     {
-        ex_error("DoSelect: ct_send() failed");
+        ex_error("DoDML: ct_send() failed");
         return retcode;
     }
 
@@ -407,7 +434,7 @@ DoSelect(CS_CONNECTION *connection, CS_CHAR *select)
     if (retcode != CS_SUCCEED) {
         CS_CHAR     tmpbuf[EX_MAXSTRINGLEN];
 
-        sprintf(tmpbuf, "DoSelect: Failed with command=<%s>.",
+        sprintf(tmpbuf, "DoDML: Failed with command=<%s>.",
                 select);
         ex_error(tmpbuf);
     }
