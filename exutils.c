@@ -129,6 +129,9 @@ ex_display_dlen(CS_DATAFMT *column)
 
 		case CS_DATETIME_TYPE:
 		case CS_DATETIME4_TYPE:
+        case CS_TIME_TYPE:
+        case CS_BIGDATETIME_TYPE:
+        case CS_BIGTIME_TYPE:
 			len = 30;
 			break;
 

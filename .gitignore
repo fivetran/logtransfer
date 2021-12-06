@@ -11,3 +11,6 @@ _deps
 *.o
 rpc
 logtransfer
+
+.idea
+cmake-build-debug

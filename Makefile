@@ -133,10 +133,6 @@ exutils.o: exutils.c example.h exutils.h
 	@ printf "$(COMPILE) -c exutils.c -o exutils.o\n\n";
 	@ $(COMPILE) -c exutils.c -o exutils.o
 
-exutils_uctext.o: exutils.c example.h exutils.h
-	@ printf "$(COMPILE) -c exutils.c -DPARTIAL_TEXT -o exutils_uctext.o\n\n";
-	@ $(COMPILE) -c exutils.c -DPARTIAL_TEXT -o exutils_uctext.o
-
 rpc: rpc.c exutils.o
 	@ printf "$(COMPILE) rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@\n\n";
 	@ $(COMPILE) rpc.c exutils.o $(LIBPATH) $(CTLIBS) $(COMLIBS) $(SYSLIBS)  -o $@

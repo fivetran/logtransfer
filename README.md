@@ -6,6 +6,20 @@ In `example.h`, set `EX_USERNAME` and `EX_PASSWORD` appropriately. In
 `logtransfer.c`, set `Ex_dbname` to the name of the database to be scanned.
 (Setting `DSQUERY` below gets you to the right data server.)
 
+In the database to be scanned, create tables as follows:
+```sql
+create table test_lob (
+    id int primary key not null ,
+    story text
+)
+
+create table test_lob_dol (
+    id int primary key not null ,
+    story text
+)
+lock datarows
+```
+
 Building:
 ```commandline
 export SYBASE=/home/sybase
