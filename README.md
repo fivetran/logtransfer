@@ -18,6 +18,69 @@ create table test_lob_dol (
     story text
 )
 lock datarows
+
+create table test_all_lobs_dol (
+                                   id integer primary key ,
+                                   t text null off row,
+                                   ui unitext in row ,
+                                   i image off row,
+                                   ti text in row ,
+                                   u unitext null off row,
+                                   ii image null in row
+) lock datarows
+
+create table test_all_lobs_apl
+(
+    id integer primary key,
+    t  text    null off row,
+    ui unitext in row,
+    i  image off row,
+    ti text in row,
+    u  unitext null off row,
+    ii image   null in row
+)
+
+create table test_some_lobs_dol (
+                                    id integer primary key ,
+                                    t text null off row,
+                                    dt datetime null,
+                                    c10 char(10),
+                                    ui unitext in row ,
+                                    vc10 varchar(10)
+) lock datarows
+
+create table test_some_lobs_apl (
+                                    id integer primary key,
+                                    t text null off row,
+                                    dt datetime null,
+                                    c10 char(10),
+                                    ui unitext in row ,
+                                    vc10 varchar(10)
+)
+
+create table test_no_lobs_dol (
+                                  id integer primary key ,
+                                  i integer null,
+                                  d1 varchar(200) null,
+                                  n18    numeric(18),
+                                  d10_2  decimal(10, 2),
+                                  dt     datetime,
+                                  d      date,
+                                  bdt    bigdatetime,
+                                  mny    money
+) lock datarows
+
+create table test_no_lobs_apl (
+                                  id integer primary key ,
+                                  i integer null,
+                                  d1 varchar(200) null,
+                                  n18    numeric(18),
+                                  d10_2  decimal(10, 2),
+                                  dt     datetime,
+                                  d      date,
+                                  bdt    bigdatetime,
+                                  mny    money
+)
 ```
 
 Building:

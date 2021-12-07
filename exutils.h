@@ -57,7 +57,8 @@
 /*
 ** Maximum character buffer for displaying a column
 */
-#define MAX_CHAR_BUF	1024
+//#define MAX_CHAR_BUF	1024
+#define MAX_CHAR_BUF	32000
 
 /*
 ** Useful macro's

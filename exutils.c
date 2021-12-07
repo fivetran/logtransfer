@@ -96,6 +96,7 @@ ex_display_dlen(CS_DATAFMT *column)
 			break;
 
 		case CS_UNICHAR_TYPE:
+        case CS_UNITEXT_TYPE:
 			len = MIN((column->maxlength / 2), MAX_CHAR_BUF);
 			break;
 

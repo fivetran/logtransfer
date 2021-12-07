@@ -30,4 +30,15 @@ set(SOURCE_FILES
 add_executable(rpc ${SOURCE_FILES} ./rpc.c)
 add_executable(logtransfer ${SOURCE_FILES} ./logtransfer.c)
 
-add_compile_options()
+target_link_libraries(logtransfer
+        sybct64 sybtcl64 sybcs64 sybcomn64 sybintl64 sybunic64
+        )
+
+set_target_properties(logtransfer
+        PROPERTIES LINK_FLAGS
+        -L/home/sybase/OCS-16_0/lib
+        )
+
+target_compile_options(logtransfer PRIVATE -m64 PRIVATE -g PRIVATE -DSYB_LP64 PRIVATE -D_REENTRANT PRIVATE -Werror PRIVATE -Wall PRIVATE -Wformat=2)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
