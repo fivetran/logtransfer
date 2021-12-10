@@ -40,20 +40,23 @@
 ** Must be less than 20 characters.
 */
 #define OPERATION_NONE "none"
-#define OPERATION_BEGIN_XACT "0"
+#define OPERATION_BEGINXACT "0"
 #define OPERATION_INSERT "4"
 #define OPERATION_AFTER_IMAGE "after image"  // Row AFTER image
-#define OPERATION_TEXTINSERT "32"
-#define OPERATION_TEXT_AFTER "text after"  // TEXT column AFTER image
-#define OPERATION_COMMIT_XACT "30"
 #define OPERATION_DELETE "5"
-#define OPERATION_BEFORE_AND_AFTER_IMAGE "before & after image"
 #define OPERATION_BEFORE_IMAGE "before image"
+#define OPERATION_BEFORE_AND_AFTER_IMAGE "before & after image"
+#define OPERATION_ALLOC "13"  // Allocate page
+#define OPERATION_CHECKPOINT "17"
+#define OPERATION_DEALLOC "21"  // Deallocate page
+#define OPERATION_ENDXACT "30"
+#define OPERATION_TEXT "32"  // Direct insert
+#define OPERATION_TEXT_AFTER "text after"  // TEXT column AFTER image
+#define OPERATION_50 "50"  // Something to do with execution of sp_retreptable/sp_setrepcol?
+#define OPERATION_58 "58"  // Something to do with execution of sp_retreptable/sp_setrepcol?
+#define OPERATION_59 "59"  // Something to do with execution of sp_retreptable/sp_setrepcol?
 #define OPERATION_BT_INSERT "71"
 #define OPERATION_BT_DELETE "72"
-#define OPERATION_21 "21"
-#define OPERATION_ALLOC "13"
-#define OPERATION_17 "17"
 
 /*
 ** Various operation "status" types used to identify how output is to appear.
@@ -88,6 +91,7 @@ CS_RETCODE CS_PUBLIC logtransfer_fetch_data(CS_COMMAND *cmd,
                                             CS_CHAR *operation,
                                             CS_CHAR *status);
 CS_RETCODE CS_PUBLIC logtransfer_display_header(CS_INT numcols,
+                                                CS_DATAFMT orig_columns[],
                                                 CS_DATAFMT columns[],
                                                 CS_CHAR *operation,
                                                 CS_CHAR *status);
@@ -171,33 +175,42 @@ main(int argc, char *argv[])
          * request anything (i.e., use the default), than if we try to
          * specify everything using the below technique.
          */
-        /*
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "beginxact");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "endxact");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "insert");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "delete");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "insind");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "execend");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "checkpoint");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "syncdpdb");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "synclddb");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "syncldxact");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "cmd");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "cmdnoop");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "savexact");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "textinsert");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "inooptext");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "rowimage");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "trunctab");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "cmdtext");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "objinfo");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "colinfo");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "dol_insert");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "dol_delete");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "dol_insind");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "dol_update");
-        ** retcode = DoLogtransfer(connection, "setqual", "logop", "clr");
-        */
+
+        //retcode = DoLogtransfer(connection, "setqual", "logop", "'beginxact', 'endxact', 'insert', 'delete', 'insind', 'checkpoint', 'execbegin', 'execend', 'trunctab', 'savept', 'text', 'rowimage'");
+        // Message String: Incorrect syntax near 'beginxact'.
+        //
+        //ERROR: ex_handle_results: ct_results returned CS_CMD_FAIL.
+        //ERROR: DoLogtransfer: handling results failed with operation=<setqual>, qualifier=<logop>, parm=<'beginxact', 'endxact', 'insert', 'delete', 'insind', 'checkpoint', 'execbegin', 'execend', 'trunctab', 'savept', 'text', 'rowimage'>.
+        // Jeremy's example shows these being set in this fashion.
+
+        retcode = DoLogtransfer(connection, "setqual", "logop", "beginxact");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "endxact");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "insert");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "delete");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "insind");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "checkpoint");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "execbegin");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "execend");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "syncdpdb");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "synclddb");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "syncldxact");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "cmd");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "cmdnoop");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "savexact");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "textinsert");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "trunctab");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "savept");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "cmdtext"); // ??? In Irfan's presentation, not in Jeremy's example.
+        retcode = DoLogtransfer(connection, "setqual", "logop", "text"); // ???  Not in Irfan's presentation, in Jeremy's example.
+        retcode = DoLogtransfer(connection, "setqual", "logop", "inooptext");
+        retcode = DoLogtransfer(connection, "setqual", "logop", "rowimage");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "objinfo");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "colinfo");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "dol_insert");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "dol_delete");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "dol_insind");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "dol_update");
+        // retcode = DoLogtransfer(connection, "setqual", "logop", "clr");
     }
 
     /*
@@ -611,6 +624,153 @@ main(int argc, char *argv[])
 	}
 
 	return (retcode == CS_SUCCEED) ? EX_EXIT_SUCCEED : EX_EXIT_FAIL;
+}
+
+/*
+** DTIDNames()
+**
+** Type of function:
+** 	logtransfer program internal api
+**
+** Purpose:
+** 	Return the name for the given datatype ID.
+**
+** Parameters:
+** 	dtid	- Daatype ID.
+**
+** Return:
+**	Datatype name.
+*/
+
+CS_STATIC CS_CHAR*
+DTIDNames(CS_INT dtid)
+{
+    CS_CHAR* name= "ILLEGAL";
+
+    switch(dtid) {
+        case CS_CHAR_TYPE:
+            name= "CHAR";
+            break;
+        case CS_BINARY_TYPE:
+            name= "BINARY";
+            break;
+        case CS_LONGCHAR_TYPE:
+            name= "LONGCHAR";
+            break;
+        case CS_LONGBINARY_TYPE:
+            name= "LONGBINARY";
+            break;
+        case CS_TEXT_TYPE:
+            name= "TEXT";
+            break;
+        case CS_IMAGE_TYPE:
+            name= "IMAGE";
+            break;
+        case CS_TINYINT_TYPE:
+            name= "TINYINT";
+            break;
+        case CS_SMALLINT_TYPE:
+            name= "SMALLINT";
+            break;
+        case CS_INT_TYPE:
+            name= "INT";
+            break;
+        case CS_REAL_TYPE:
+            name= "REAL";
+            break;
+        case CS_FLOAT_TYPE:
+            name= "FLOAT";
+            break;
+        case CS_BIT_TYPE:
+            name= "BIT";
+            break;
+        case CS_DATETIME_TYPE:
+            name= "DATETIME";
+            break;
+        case CS_DATETIME4_TYPE:
+            name= "DATETIME4";
+            break;
+        case CS_MONEY_TYPE:
+            name= "MONEY";
+            break;
+        case CS_MONEY4_TYPE:
+            name= "MONEY4";
+            break;
+        case CS_NUMERIC_TYPE:
+            name= "NUMERIC";
+            break;
+        case CS_DECIMAL_TYPE:
+            name= "DECIMAL";
+            break;
+        case CS_VARCHAR_TYPE:
+            name= "VARCHAR";
+            break;
+        case CS_VARBINARY_TYPE:
+            name= "VARBINARY";
+            break;
+        case CS_LONG_TYPE:
+            name= "LONG";
+            break;
+        case CS_SENSITIVITY_TYPE:
+            name= "SENSITIVITY";
+            break;
+        case CS_BOUNDARY_TYPE:
+            name= "BOUNDARY";
+            break;
+        case CS_VOID_TYPE:
+            name= "VOID";
+            break;
+        case CS_USHORT_TYPE:
+            name= "USHORT";
+            break;
+        case CS_UNICHAR_TYPE:
+            name= "UNICHAR";
+            break;
+        case CS_BLOB_TYPE:
+            name= "BLOB";
+            break;
+        case CS_DATE_TYPE:
+            name= "DATE";
+            break;
+        case CS_TIME_TYPE:
+            name= "TIME";
+            break;
+        case CS_UNITEXT_TYPE:
+            name= "UNITEXT";
+            break;
+        case CS_BIGINT_TYPE:
+            name= "BIGINT";
+            break;
+        case CS_USMALLINT_TYPE:
+            name= "USMALLINT";
+            break;
+        case CS_UINT_TYPE:
+            name= "UINT";
+            break;
+        case CS_UBIGINT_TYPE:
+            name= "UBIGINT";
+            break;
+        case CS_XML_TYPE:
+            name= "XML";
+            break;
+        case CS_BIGDATETIME_TYPE:
+            name= "BIGDATETIME";
+            break;
+        case CS_BIGTIME_TYPE:
+            name= "BIGTIME";
+            break;
+        case CS_TEXTLOCATOR_TYPE:
+            name= "TEXTLOCATOR";
+            break;
+        case CS_IMAGELOCATOR_TYPE:
+            name= "IMAGELOCATOR";
+            break;
+        case CS_UNITEXTLOCATOR_TYPE:
+            name= "UNITEXTLOCATOR";
+            break;
+    }
+
+    return name;
 }
 
 /*
@@ -1108,15 +1268,21 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
                        &rows_read);
 
     if((strcmp(coldata[0].value, OPERATION_BT_INSERT) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_BT_DELETE) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_21) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_ALLOC) == 0)||
-            (strcmp(coldata[0].value, OPERATION_17) == 0)) {
+       (strcmp(coldata[0].value, OPERATION_BT_DELETE) == 0) ||
+       (strcmp(coldata[0].value, OPERATION_DEALLOC) == 0) ||
+       (strcmp(coldata[0].value, OPERATION_ALLOC) == 0) ||
+            (strcmp(coldata[0].value, OPERATION_CHECKPOINT) == 0) ||
+            (strcmp(coldata[0].value, OPERATION_50) == 0) ||
+            (strcmp(coldata[0].value, OPERATION_58) == 0) ||
+            (strcmp(coldata[0].value, OPERATION_59) == 0)) {
         fprintf(stdout, "Ignoring results for <%s>.\n",
                 (strcmp(coldata[0].value, OPERATION_BT_INSERT) == 0) ? "BT_INSERT" :
                 (strcmp(coldata[0].value, OPERATION_BT_DELETE) == 0) ? "BT_DELETE" :
-                (strcmp(coldata[0].value, OPERATION_21) == 0) ? "operation 21 (0x15)" :
-                (strcmp(coldata[0].value, OPERATION_ALLOC) == 0) ?  "ALLOC" : "operation 17 (0x11)");
+                (strcmp(coldata[0].value, OPERATION_DEALLOC) == 0) ? "DEALLOC" :
+                (strcmp(coldata[0].value, OPERATION_ALLOC) == 0) ?  "ALLOC" :
+                (strcmp(coldata[0].value, OPERATION_CHECKPOINT) == 0) ?  "CHECKPOINT" :
+                (strcmp(coldata[0].value, OPERATION_50) == 0) ?  "operation 50" :
+                (strcmp(coldata[0].value, OPERATION_58) == 0) ?  "operation 58" : "operation 59");
         fflush(stdout);
 
         /*
@@ -1129,16 +1295,16 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
     }
     else {
         if((strcmp(operation, OPERATION_NONE) == 0) ||
-           (strcmp(operation, OPERATION_BEGIN_XACT) == 0) ||
+           (strcmp(operation, OPERATION_BEGINXACT) == 0) ||
            (strcmp(operation, OPERATION_AFTER_IMAGE) == 0) ||
            (strcmp(operation, OPERATION_TEXT_AFTER) == 0) ||
-           (strcmp(operation, OPERATION_COMMIT_XACT) == 0) ||
+           (strcmp(operation, OPERATION_ENDXACT) == 0) ||
            (strcmp(operation, OPERATION_BEFORE_AND_AFTER_IMAGE) == 0) ||
            (strcmp(operation, OPERATION_BEFORE_IMAGE) == 0)) {
             strcpy(operation, coldata[0].value);
         } else if(strcmp(operation, OPERATION_INSERT) == 0) {
             strcpy(operation, OPERATION_AFTER_IMAGE);
-        } else if(strcmp(operation, OPERATION_TEXTINSERT) == 0) {
+        } else if(strcmp(operation, OPERATION_TEXT) == 0) {
             strcpy(operation, OPERATION_TEXT_AFTER);
         } else if(strcmp(operation, OPERATION_DELETE) == 0) {
             if(strcmp(status, STATUS_UPDATE) == 0) {
@@ -1159,7 +1325,7 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
             /*
             ** Display column header
             */
-            logtransfer_display_header(num_cols, datafmt, operation, status);
+            logtransfer_display_header(num_cols, orig_datafmt, datafmt, operation, status);
 
             /*
             ** Fetch the rows.  Loop while ct_fetch() returns CS_SUCCEED or
@@ -1192,10 +1358,10 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
                        (datafmt[i].datatype == CS_TIME_TYPE) ||
                        (datafmt[i].datatype == CS_BIGDATETIME_TYPE) ||
                        (datafmt[i].datatype == CS_BIGTIME_TYPE)) {
-                        CS_CHAR out_buf[30];
+                        CS_CHAR out_buf[22];
 
                         retcode = logtransfer_dt_fmt(coldata[i].value,
-                                                     &out_buf[0], 32,
+                                                     &out_buf[0], 22,
                                                      datafmt[i].datatype);
                         if(retcode == CS_SUCCEED) {
                             fprintf(stdout, "%s", out_buf);
@@ -1286,7 +1452,8 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
 ** None
 */
 CS_RETCODE CS_PUBLIC
-logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operation, CS_CHAR *status)
+logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
+                           CS_DATAFMT columns[], CS_CHAR* operation, CS_CHAR *status)
 {
     CS_INT		i;
     CS_INT		l;
@@ -1297,7 +1464,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
     ** Row preamble.
     */
     fputc('\n', stdout);
-    if(strcmp(operation, OPERATION_BEGIN_XACT) == 0) {
+    if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
         fprintf(stdout, "BEGIN XACT");
     }
     else if(strcmp(operation, OPERATION_INSERT) == 0) {
@@ -1311,13 +1478,13 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
     else if(strcmp(operation, OPERATION_AFTER_IMAGE) == 0) {
         fprintf(stdout, "AFTER IMAGE");
     }
-    else if(strcmp(operation, OPERATION_TEXTINSERT) == 0) {
+    else if(strcmp(operation, OPERATION_TEXT) == 0) {
         fprintf(stdout, "TEXTINSERT");
     }
     else if(strcmp(operation, OPERATION_TEXT_AFTER) == 0) {
         fprintf(stdout, "Text column AFTER image");
     }
-    else if(strcmp(operation, OPERATION_COMMIT_XACT) == 0) {
+    else if(strcmp(operation, OPERATION_ENDXACT) == 0) {
         fprintf(stdout, "COMMIT XACT");
     }
     else if(strcmp(operation, OPERATION_DELETE) == 0) {
@@ -1374,7 +1541,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
             }
             case 3:
             {
-                if(strcmp(operation, OPERATION_BEGIN_XACT) == 0) {
+                if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "begin time",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1383,7 +1550,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
                     strncpy(columns[i].name, "status",
                             sizeof(columns[i].name) - 1);
                 }
-                else if(strcmp(operation, OPERATION_TEXTINSERT) == 0) {
+                else if(strcmp(operation, OPERATION_TEXT) == 0) {
                     strncpy(columns[i].name, "log page",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1394,11 +1561,11 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
             {
                 if((strcmp(operation, OPERATION_INSERT) == 0) ||
                    (strcmp(operation, OPERATION_DELETE) == 0) ||
-                   (strcmp(operation, OPERATION_COMMIT_XACT) == 0)) {
+                   (strcmp(operation, OPERATION_ENDXACT) == 0)) {
                     strncpy(columns[i].name, "log page",
                             sizeof(columns[i].name) - 1);
                 }
-                else if(strcmp(operation, OPERATION_TEXTINSERT) == 0) {
+                else if(strcmp(operation, OPERATION_TEXT) == 0) {
                     strncpy(columns[i].name, "log record",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1409,7 +1576,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
             {
                 if((strcmp(operation, OPERATION_INSERT) == 0) ||
                    (strcmp(operation, OPERATION_DELETE) == 0) ||
-                   (strcmp(operation, OPERATION_COMMIT_XACT) == 0)) {
+                   (strcmp(operation, OPERATION_ENDXACT) == 0)) {
                     strncpy(columns[i].name, "log record",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1417,7 +1584,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
             }
             case 6:
             {
-                if(strcmp(operation, OPERATION_BEGIN_XACT) == 0) {
+                if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "transaction name",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1425,7 +1592,7 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
             }
             case 7:
             {
-                if(strcmp(operation, OPERATION_BEGIN_XACT) == 0) {
+                if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "user name",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1438,15 +1605,15 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
                     strncpy(columns[i].name, "table name",
                             sizeof(columns[i].name) - 1);
                 }
-                else if(strcmp(operation, OPERATION_TEXTINSERT) == 0) {
+                else if(strcmp(operation, OPERATION_TEXT) == 0) {
                     strncpy(columns[i].name, "column name",
                             sizeof(columns[i].name) - 1);
                 }
-                else if(strcmp(operation, OPERATION_COMMIT_XACT) == 0) {
+                else if(strcmp(operation, OPERATION_ENDXACT) == 0) {
                     strncpy(columns[i].name, "commit time",
                             sizeof(columns[i].name) - 1);
                 }
-                else if(strcmp(operation, OPERATION_BEGIN_XACT) == 0) {
+                else if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "user password",
                             sizeof(columns[i].name) - 1);
                 }
@@ -1477,6 +1644,25 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT columns[], CS_CHAR* operat
     }
     fputc('\n', stdout);
     fflush(stdout);
+
+    for (i = 0; i < numcols; i++)
+    {
+        CS_CHAR metadata[23]; // Max datatype name, 14, + 2 parenthesis + 5 digits and a comma + 1.
+
+        disp_len = 23;
+        snprintf(metadata, 23, "%s(%d)", DTIDNames(orig_columns[i].datatype), orig_columns[i].maxlength);
+        fprintf(stdout, "%s", metadata);
+        fflush(stdout);
+        l = disp_len - strlen(metadata);
+        for (j = 0; j < l; j++)
+        {
+            fputc(' ', stdout);
+            fflush(stdout);
+        }
+    }
+    fputc('\n', stdout);
+    fflush(stdout);
+
     for (i = 0; i < numcols; i++)
     {
         disp_len = ex_display_dlen(&columns[i]);
