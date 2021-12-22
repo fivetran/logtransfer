@@ -1630,6 +1630,13 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                 break;
             }
         }
+        if(strcmp(columns[i].name, "h") == 0) {
+            strncpy(columns[i].name, "pg ts high",
+                    sizeof(columns[i].name) - 1);
+        } else if(strcmp(columns[i].name, "l") == 0) {
+            strncpy(columns[i].name, "pg ts low",
+                    sizeof(columns[i].name) - 1);
+        }
         columns[i].name[sizeof(columns[i].name) - 1] = 0x00;
 
         disp_len = ex_display_dlen(&columns[i]);
