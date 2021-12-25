@@ -49,6 +49,7 @@
 #define OPERATION_ALLOC "13"  // Allocate page
 #define OPERATION_CHECKPOINT "17"
 #define OPERATION_DEALLOC "21"  // Deallocate page
+#define OPERATION_CLEAR "26"
 #define OPERATION_ENDXACT "30"
 #define OPERATION_TEXT "32"  // Direct insert
 #define OPERATION_TEXT_AFTER "text after"  // TEXT column AFTER image
@@ -574,7 +575,36 @@ main(int argc, char *argv[])
     }
 
     /*
-    ** Perform 1 continuation scan.
+    ** Perform first continuation scan.
+    */
+    if (retcode == CS_SUCCEED)
+    {
+        retcode = DoLogtransfer(connection, "scan", "continue", "");
+    }
+
+    // Try a transaction that gets rolled back.
+    if (retcode == CS_SUCCEED) {
+        retcode = DoDML(connection, "begin tran");
+    }
+
+    if (retcode == CS_SUCCEED) {
+        retcode = DoDML(connection, "insert into test_some_lobs_apl (id, t, dt, c10, ui, vc10) \
+    VALUES ( \
+            2, \
+            '23456789112345678921234567893123456789412345678951234567896123456789712345678981234567899123456789012345678911234567892123456789312345678941234567895123456789612345678971234567898123456789912345678901', \
+            getdate(), \
+            '12345', \
+            '23456789112345678921234567893123456789412345678951234567896123456789712345678981234567899123456789012345678911234567892123456789312345678941234567895123456789612345678971234567898123456789912345678901', \
+            'abcde' \
+    )");
+    }
+
+    if (retcode == CS_SUCCEED) {
+        retcode = DoDML(connection, "rollback tran");
+    }
+
+    /*
+    ** Perform second continuation scan.
     */
     if (retcode == CS_SUCCEED)
     {
@@ -1271,10 +1301,10 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
        (strcmp(coldata[0].value, OPERATION_BT_DELETE) == 0) ||
        (strcmp(coldata[0].value, OPERATION_DEALLOC) == 0) ||
        (strcmp(coldata[0].value, OPERATION_ALLOC) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_CHECKPOINT) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_50) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_58) == 0) ||
-            (strcmp(coldata[0].value, OPERATION_59) == 0)) {
+       (strcmp(coldata[0].value, OPERATION_CHECKPOINT) == 0) ||
+       (strcmp(coldata[0].value, OPERATION_50) == 0) ||
+       (strcmp(coldata[0].value, OPERATION_58) == 0) ||
+       (strcmp(coldata[0].value, OPERATION_59) == 0)) {
         fprintf(stdout, "Ignoring results for <%s>.\n",
                 (strcmp(coldata[0].value, OPERATION_BT_INSERT) == 0) ? "BT_INSERT" :
                 (strcmp(coldata[0].value, OPERATION_BT_DELETE) == 0) ? "BT_DELETE" :
@@ -1294,13 +1324,17 @@ logtransfer_fetch_data(CS_COMMAND *cmd, CS_CHAR *operation, CS_CHAR *status)
         }
     }
     else {
+        /*
+         * Set the next operation based upon the previous.
+         */
         if((strcmp(operation, OPERATION_NONE) == 0) ||
            (strcmp(operation, OPERATION_BEGINXACT) == 0) ||
            (strcmp(operation, OPERATION_AFTER_IMAGE) == 0) ||
            (strcmp(operation, OPERATION_TEXT_AFTER) == 0) ||
            (strcmp(operation, OPERATION_ENDXACT) == 0) ||
            (strcmp(operation, OPERATION_BEFORE_AND_AFTER_IMAGE) == 0) ||
-           (strcmp(operation, OPERATION_BEFORE_IMAGE) == 0)) {
+           (strcmp(operation, OPERATION_BEFORE_IMAGE) == 0) ||
+           (strcmp(operation, OPERATION_CLEAR) == 0)) {
             strcpy(operation, coldata[0].value);
         } else if(strcmp(operation, OPERATION_INSERT) == 0) {
             strcpy(operation, OPERATION_AFTER_IMAGE);
@@ -1501,6 +1535,9 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
     else if(strcmp(operation, OPERATION_BEFORE_IMAGE) == 0) {
         fprintf(stdout, "BEFORE IMAGE");
     }
+    else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+        fprintf(stdout, "CLEAR");
+    }
     fflush(stdout);
 
     fputc('\n', stdout);
@@ -1554,6 +1591,10 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                     strncpy(columns[i].name, "log page",
                             sizeof(columns[i].name) - 1);
                 }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "clear page",
+                            sizeof(columns[i].name) - 1);
+                }
 
                 break;
             }
@@ -1569,6 +1610,10 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                     strncpy(columns[i].name, "log record",
                             sizeof(columns[i].name) - 1);
                 }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "clear record",
+                            sizeof(columns[i].name) - 1);
+                }
 
                 break;
             }
@@ -1580,6 +1625,10 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                     strncpy(columns[i].name, "log record",
                             sizeof(columns[i].name) - 1);
                 }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "clear ts high",
+                            sizeof(columns[i].name) - 1);
+                }
                 break;
             }
             case 6:
@@ -1588,12 +1637,20 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                     strncpy(columns[i].name, "transaction name",
                             sizeof(columns[i].name) - 1);
                 }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "clear ts low",
+                            sizeof(columns[i].name) - 1);
+                }
                 break;
             }
             case 7:
             {
                 if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "user name",
+                            sizeof(columns[i].name) - 1);
+                }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "log page",
                             sizeof(columns[i].name) - 1);
                 }
                 break;
@@ -1615,6 +1672,10 @@ logtransfer_display_header(CS_INT numcols, CS_DATAFMT orig_columns[],
                 }
                 else if(strcmp(operation, OPERATION_BEGINXACT) == 0) {
                     strncpy(columns[i].name, "user password",
+                            sizeof(columns[i].name) - 1);
+                }
+                else if(strcmp(operation, OPERATION_CLEAR) == 0) {
+                    strncpy(columns[i].name, "log record",
                             sizeof(columns[i].name) - 1);
                 }
 
